@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFormState } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -16,16 +16,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAppState } from "@/lib/state";
+import { useGetHealthQuery } from "@/hooks/auth.hook";
 
 const formSchema = z.object({
   username: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
-  email: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  email: z.string().email({
+    message: "Email must be valid.",
   }),
   password: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+    message: "Password must be at least 2 characters.",
   }),
 });
 
@@ -39,34 +41,34 @@ export function ProfileForm() {
       password: "",
     },
   });
+  const setAppUser = useAppState((state) => state.setUser);
+  const getHealthQuery = useGetHealthQuery();
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    void getHealthQuery();
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className=" space-y-8 w-full"
-      >
-        <Tabs defaultValue="email" className="w-full flex flex-col items-center">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <Tabs
+          defaultValue="email"
+          className="w-full h-md flex flex-col items-center"
+        >
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
           </TabsList>
-          <TabsContent value="email" >
+          <TabsContent value="email" className="w-full max-w-md">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="my-4">
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} className="w-4xl"/>
+                    <Input placeholder="account@duely.com" {...field} />
                   </FormControl>
                   <FormDescription>
                     For Recovery and Account Management
@@ -76,15 +78,15 @@ export function ProfileForm() {
               )}
             />
           </TabsContent>
-          <TabsContent value="credentials">
+          <TabsContent value="credentials" className="w-full max-w-md">
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 ">
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="Van S." {...field} />
                   </FormControl>
                   <FormDescription>
                     This is your public display name.
@@ -95,21 +97,21 @@ export function ProfileForm() {
             />
             <FormField
               control={form.control}
-              name="username"
+              name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
+                <FormItem className="mt-4 mb-6">
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="Enter password..." {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+
+            <Button type="submit" className="w-full">
+              Submit
+            </Button>
           </TabsContent>
         </Tabs>
       </form>
@@ -121,6 +123,7 @@ export default function Home() {
   return (
     <main className="flex w-full min-h-screen flex-col items-center justify-between p-24">
       <div className="max-w-5xl w-full">
+        <h1 className="text-4xl font-bold text-center mb-12">Sign Up</h1>
         <ProfileForm />
       </div>
     </main>
