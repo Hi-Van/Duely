@@ -54,7 +54,7 @@ export function ProfileForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
         <Tabs
           defaultValue="email"
-          className="w-full h-md flex flex-col items-center"
+          className="w-full flex flex-col items-center"
         >
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="email">Email</TabsTrigger>
@@ -121,10 +121,28 @@ export function ProfileForm() {
 
 export default function Home() {
   return (
-    <main className="flex w-full min-h-screen flex-col items-center justify-between p-24">
-      <div className="max-w-5xl w-full">
-        <h1 className="text-4xl font-bold text-center mb-12">Sign Up</h1>
-        <ProfileForm />
+    <main className="flex w-full flex-col items-center justify-between p-24">
+      <div className="w-full min-h-screen h-fit">
+<div className="flex items-center w-full h-full grid-cols-2">
+          <div className="flex flex-col justify-center">
+            <h1 className="text-6xl font-bold text-center mb-12">
+              Welcome to Duely.
+            </h1>
+            <p className="text-xl text-center mb-12">
+              Duely is a platform for creating and managing your own online
+              business.
+            </p>
+          </div>
+          <div className="w-full h-full flex flex-col justify-center items-center">
+          <h1 className="text-6xl font-bold mb-8">
+              Welcome to Duely.
+            </h1>
+            <p className="text-xl text-center mb-16 text-slate-400">
+              Daily things, weekly things, monthly things, yearly things, <br/> and more. All done right.
+            </p>
+            <ProfileForm />
+          </div>
+        </div>
       </div>
     </main>
   );

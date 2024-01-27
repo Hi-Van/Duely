@@ -32,10 +32,7 @@ export const useFetch = <Data = any, Error = any, Body = any, Headers = any>(
   url: string,
   method: HttpMethod
 ): FetchResponse<Data, Error, Body, Headers> => {
-  const { data, error, isValidating } = useSWR<Data, Error>(url, null, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, error, isValidating } = useSWR<Data, Error>(url, null);
   const [isInitialized, setIsInitialized] = useState(false);
   return [
     { data, error, isLoading: isValidating, isInitialized },
