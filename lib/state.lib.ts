@@ -1,12 +1,8 @@
+import { LoginData } from "@/hooks/auth.hook";
 import { create } from "zustand";
 
 interface State {
-  user: {
-    token?: string;
-    username: string;
-    email?: string;
-    password?: string;
-  } | null;
+  user: LoginData | null;
 }
 
 interface Actions {

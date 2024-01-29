@@ -7,8 +7,10 @@ interface LoginBody {
   password: string;
 }
 
-interface LoginData {
+export interface LoginData {
   token: string;
+  userId: string;
+  username: string;
 }
 
 export const useGetHealthQuery = () => {

@@ -2,13 +2,13 @@ import { useState } from "react";
 import useSWR, { mutate } from "swr";
 
 export type FetchResponse<Data, Error, Body, Headers> = [
+  (body?: Body, headers?: Headers) => Promise<void>,
   {
     data: Data | undefined;
     isLoading: boolean;
     isInitialized: boolean;
     error: Error | undefined;
-  },
-  (body?: Body, headers?: Headers) => Promise<void>
+  }
 ];
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -18,15 +18,21 @@ const fetcher = <T, Body = any, Headers = any>(
   method: HttpMethod,
   body?: Body,
   headers?: Headers
-): Promise<T> =>
-  fetch(url, {
+): Promise<T> => {
+  const options: RequestInit = {
     method: method,
     headers: {
       "Content-Type": "application/json",
       ...(headers || {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
-  }).then((res) => res.json());
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  return fetch(url, options).then((res) => res.json());
+};
 
 export const useFetch = <Data = any, Error = any, Body = any, Headers = any>(
   url: string,
@@ -35,7 +41,6 @@ export const useFetch = <Data = any, Error = any, Body = any, Headers = any>(
   const { data, error, isValidating } = useSWR<Data, Error>(url, null);
   const [isInitialized, setIsInitialized] = useState(false);
   return [
-    { data, error, isLoading: isValidating, isInitialized },
     async (body?: Body, headers?: Headers) => {
       mutate(
         url,
@@ -44,5 +49,6 @@ export const useFetch = <Data = any, Error = any, Body = any, Headers = any>(
       );
       setIsInitialized(true);
     },
+    { data, error, isLoading: isValidating, isInitialized },
   ];
 };
