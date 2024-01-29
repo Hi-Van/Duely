@@ -27,7 +27,7 @@ export default function NavigationBar() {
   };
   return (
     <div className="w-full z-1 fixed px-4 py-2 ">
-      <div className="w-full flex justify-between items-center px-4">
+      <div className="w-full flex justify-between items-center px-4 pb-2">
         <Link href="/" className="font-extrabold text-xl">
           Duely
         </Link>
@@ -57,7 +57,7 @@ export default function NavigationBar() {
           </DropdownMenu>
         </div>
       </div>
-      <Separator className="my-2" />
+      <Separator />
     </div>
   );
 }
