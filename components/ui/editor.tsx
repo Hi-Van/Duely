@@ -15,7 +15,24 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "./resizable";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Calendar } from "./calendar";
+import { Input } from "./input";
+import { Button } from "./button";
+import { Pencil2Icon, DragHandleDots2Icon } from "@radix-ui/react-icons";
+import { Progress } from "./progress";
+import { Checkbox } from "./checkbox";
+import { Separator } from "./separator";
+import { Label } from "./label";
+import { ScrollArea } from "./scroll-area";
 
 const items = ["Item 1", "Item 2", "Item 3", "Item 4"];
 
@@ -33,19 +50,19 @@ export default function Editor() {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="w-full min-h-screen rounded-lg border"
+      className="w-full min-h-screen p-4 pt-16 rounded-lg border"
     >
-      <ResizablePanel defaultSize={76}>
-        <div className="flex w-full h-full items-start justify-center p-4">
+      <ResizablePanel defaultSize={60} minSize={40}>
+        <div className="flex w-full h-full flex-col items-center justify-between p-4">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="list">
               {(provided) => (
                 <ul
-                  className="mt-12 w-full flex flex-col space-y-4"
+                  className="w-full flex flex-col space-y-4 mb-8"
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
-                  {["a", "b", "c"].map((item, index) => {
+                  {tasks.map((item, index) => {
                     return (
                       <Draggable key={item} draggableId={item} index={index}>
                         {(provided) => (
@@ -55,18 +72,50 @@ export default function Editor() {
                             {...provided.dragHandleProps}
                           >
                             <Card>
-                              <CardHeader>
-                                <CardTitle>Card Title</CardTitle>
-                                <CardDescription>
-                                  Card Description
-                                </CardDescription>
-                              </CardHeader>
-                              <CardContent>
-                                <p>Card Content</p>
-                              </CardContent>
-                              <CardFooter>
-                                <p>Card Footer</p>
-                              </CardFooter>
+                              <div className="w-full flex items-center p-4">
+                                <DragHandleDots2Icon className="w-4 h-4" />
+                                <div className="flex-grow">
+                                  <CardHeader>
+                                    <CardTitle>
+                                      <div className="flex items-center space-x-2">
+                                        <Checkbox id={item} />
+                                        <label
+                                          htmlFor={item}
+                                          className="text-xl font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                          Task Name
+                                        </label>
+                                      </div>
+                                    </CardTitle>
+                                    <CardDescription>
+                                      Workspace Name and Due date
+                                    </CardDescription>
+                                    <Separator className="h-[2px]" />
+                                  </CardHeader>
+
+                                  <CardContent>
+                                    <ul className="ml-4 space-y-4">
+                                      {items.map((subItem) => {
+                                        return (
+                                          <li className="flex items-center space-x-2">
+                                            <Checkbox id={subItem} />
+                                            <label
+                                              htmlFor={subItem}
+                                              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            >
+                                              Task Name
+                                            </label>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                  </CardContent>
+
+                                  <CardFooter>
+                                    <Progress value={50} className="w-full" />
+                                  </CardFooter>
+                                </div>
+                              </div>
                             </Card>
                           </li>
                         )}
@@ -78,10 +127,16 @@ export default function Editor() {
               )}
             </Droppable>
           </DragDropContext>
+          <div className="w-3/4 min-w-xl flex space-x-2">
+            <Input type="text" placeholder="Create new task..." />
+            <Button size="icon">
+              <Pencil2Icon className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={24} minSize={24}>
+      <ResizablePanel defaultSize={40} minSize={24}>
         <ResizablePanelGroup direction="vertical">
           <ResizablePanel defaultSize={28} minSize={28}>
             <div className="flex w-full h-full items-center justify-center p-4">
@@ -90,9 +145,7 @@ export default function Editor() {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={72}>
-            <div className="flex h-full items-center justify-center p-6">
-              <Calendar className="w-fit h-fit rounded-sm border shadow" />
-            </div>
+            <div className="flex h-full items-center justify-center p-4"></div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>
