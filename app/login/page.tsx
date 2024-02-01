@@ -1,6 +1,18 @@
+"use client";
+
 import { ProfileForm } from "@/components/ui/profile-form";
+import * as z from "zod";
 
 export default function Page() {
+  const formSchema = z.object({
+    username: z.string().min(2, {
+      message: "Username must be at least 2 characters.",
+    }),
+    password: z.string().min(2, {
+      message: "Password must be at least 2 characters.",
+    }),
+  });
+
   return (
     <div className="flex items-center w-full min-h-screen">
       <div className="w-full flex flex-col justify-center items-center">
@@ -8,7 +20,7 @@ export default function Page() {
         <p className="text-lg text-center mb-24 text-slate-400">
           Get the things that matter, done right.
         </p>
-        <ProfileForm login={true} />
+        <ProfileForm login={true} formSchema={formSchema}/>
       </div>
     </div>
   );

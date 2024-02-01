@@ -1,7 +1,7 @@
 import { useFetch } from "./fetch.hook";
 import { api } from "@/config/api.config";
 
-interface LoginBody {
+export interface LoginBody {
   email?: string;
   username: string;
   password: string;
@@ -11,6 +11,15 @@ export interface LoginData {
   token: string;
   userId: string;
   username: string;
+}
+
+export interface ValidationHeaders {
+  authorization: string;
+  "user-id": string;
+}
+
+export interface ValidationData {
+  isAuthorized: boolean;
 }
 
 export const useGetHealthQuery = () => {
@@ -35,3 +44,7 @@ export const useGetLoginMutation = () => {
     "POST"
   );
 };
+
+export const useGetValidationQuery = () => {
+  return useFetch<ValidationData, Error, null, ValidationHeaders>(api.baseUrl + api.endpoints.auth.validate, "GET");
+}

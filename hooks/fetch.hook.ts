@@ -31,24 +31,36 @@ const fetcher = <T, Body = any, Headers = any>(
     options.body = JSON.stringify(body);
   }
 
-  return fetch(url, options).then((res) => res.json());
+  return fetch(url, options)
+  .then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+    return res.json();
+  })
+  .catch((error) => {
+    throw error;
+  });
 };
 
 export const useFetch = <Data = any, Error = any, Body = any, Headers = any>(
   url: string,
   method: HttpMethod
 ): FetchResponse<Data, Error, Body, Headers> => {
-  const { data, error, isValidating } = useSWR<Data, Error>(url, null);
+  const { data, error: swrError, isValidating, mutate } = useSWR<Data, Error>(url, null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
   return [
     async (body?: Body, headers?: Headers) => {
-      mutate(
-        url,
-        await fetcher<Data, Body, Headers>(url, method, body, headers),
-        false
-      );
-      setIsInitialized(true);
+      try {
+        const fetchedData = await fetcher<Data, Body, Headers>(url, method, body, headers);
+        mutate(fetchedData, false);
+        setIsInitialized(true);
+      } catch (error: any) {
+        setError(error);
+      }
     },
-    { data, error, isLoading: isValidating, isInitialized },
+    { data, error: error || swrError, isLoading: isValidating, isInitialized },
   ];
 };

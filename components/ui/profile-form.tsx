@@ -16,33 +16,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetRegisterMutation, useGetLoginMutation } from "@/hooks/auth.hook";
+import {
+  useGetRegisterMutation,
+  useGetLoginMutation,
+  LoginBody,
+} from "@/hooks/auth.hook";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { useAppState } from "@/lib/state.lib";
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Email must be valid.",
-  }),
-  password: z.string().min(2, {
-    message: "Password must be at least 2 characters.",
-  }),
-});
-
-export function ProfileForm({login = false}: {login?: boolean}) {
+export function ProfileForm({
+  login = false,
+  formSchema,
+}: {
+  login?: boolean;
+  formSchema: z.ZodObject<any>;
+}) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-    },
+    defaultValues: login
+      ? { username: "", password: "" }
+      : { email: "", username: "", password: "" },
   });
   const setAppUser = useAppState((state) => state.setUser);
   const [registerQuery, getRegisterQuery] = useGetRegisterMutation();
@@ -64,9 +60,9 @@ export function ProfileForm({login = false}: {login?: boolean}) {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (login) {
-      void loginQuery(values);
+      void loginQuery(values as LoginBody);
     } else {
-        void registerQuery(values);
+      void registerQuery(values as LoginBody);
     }
   }
 
