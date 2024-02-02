@@ -1,138 +1,228 @@
 "use client";
 
-import { useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./card";
+import { useEffect, useRef, useState } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "./resizable";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Calendar } from "./calendar";
 import { Input } from "./input";
 import { Button } from "./button";
-import { Pencil2Icon, DragHandleDots2Icon } from "@radix-ui/react-icons";
-import { Progress } from "./progress";
-import { Checkbox } from "./checkbox";
-import { Separator } from "./separator";
+import { DotsVerticalIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { Label } from "./label";
+import { format } from "date-fns";
+import DragNDropList from "./drag-n-drop-list";
+import type { Task } from "./drag-n-drop-list";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import { ScrollArea } from "./scroll-area";
-
-const items = ["Item 1", "Item 2", "Item 3", "Item 4"];
+import { DatePicker } from "./date-picker";
 
 export default function Editor() {
-  const [tasks, setTasks] = useState(items);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [stepInputValue, setStepInputValue] = useState("");
+  const [currentEditableTask, setCurrentEditableTask] = useState<string | null>(
+    null
+  );
+  const [date, setDate] = useState();
+  const stepInputRef = useRef<HTMLInputElement>(null);
+  const taskNameRef = useRef<HTMLInputElement>(null);
 
-  const handleDragEnd = (result: any) => {
-    // handle drag end logic here
-    const copiedTasks = Array.from(tasks);
-    const [reorderedTasks] = copiedTasks.splice(result.source.index, 1);
-    copiedTasks.splice(result.destination.index, 0, reorderedTasks);
-    setTasks(copiedTasks);
+  useEffect(() => {
+    stepInputRef.current?.focus();
+  }, [stepInputValue]);
+
+  useEffect(() => {
+    taskNameRef.current?.focus();
+  }, [tasks.find((task) => task.id === currentEditableTask)?.name]);
+
+  const TaskEditor = () => {
+    const currentTask = tasks.find((task) => task.id === currentEditableTask);
+
+    if (!currentTask) {
+      return null;
+    }
+
+    return (
+      <ScrollArea className="rounded-md border w-full h-full p-4">
+        <div className="m-4">
+          <div className="w-full space-y-2">
+            <Label>Task Name</Label>
+            <Input
+              ref={taskNameRef}
+              type="text"
+              value={currentTask.name}
+              onChange={(e) => {
+                const copiedTasks = tasks.map((task) => {
+                  const newTask = { ...task };
+                  if (task.id === currentTask.id) {
+                    newTask.name = e.target.value;
+                  }
+                  return newTask;
+                });
+                setTasks(copiedTasks);
+              }}
+            />
+          </div>
+          <div className="w-full space-y-2 my-8">
+            <Label>Steps</Label>
+            <ul className=" divide-y divide-dashed">
+              {currentTask.subTasks.map((subTask, jdx) => {
+                return (
+                  <li
+                    key={subTask.id}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <p className=" text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {subTask.name}
+                    </p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className="h-fit w-fit p-1" variant={null}>
+                          <DotsVerticalIcon className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const copiedTasks = [...tasks];
+                            currentTask.subTasks[jdx].done =
+                              !currentTask.subTasks[jdx].done;
+                            setTasks(copiedTasks);
+                          }}
+                        >
+                          {currentTask.subTasks[jdx].done
+                            ? "Mark as not done"
+                            : "Mark as done"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const copiedTasks = [...tasks];
+                            currentTask.subTasks.splice(jdx, 1);
+                            currentTask.steps -= 1;
+                            setTasks(copiedTasks);
+                          }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </li>
+                );
+              })}
+            </ul>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                const copiedTasks = [...tasks];
+                currentTask.subTasks.push({
+                  id: crypto.randomUUID(),
+                  name: stepInputValue,
+                  done: false,
+                });
+                currentTask.steps += 1;
+
+                setStepInputValue("");
+                setTasks(copiedTasks);
+              }}
+            >
+              <Input
+                type="text"
+                placeholder="Add a step..."
+                ref={stepInputRef}
+                value={stepInputValue}
+                onChange={(e) => setStepInputValue(e.target.value)}
+              />
+            </form>
+          </div>
+          <div className="w-full space-y-2 my-8">
+            <Label>Due Date</Label> <br />
+            <DatePicker
+              date={date}
+              setDate={(newDate: any) => {
+                setDate(newDate);
+                const copiedTasks = tasks.map((task) => {
+                  const newTask = { ...task };
+                  if (task.id === currentTask.id) {
+                    newTask.dueDate = format(newDate, "PPP");
+                  }
+                  return newTask;
+                });
+                setTasks(copiedTasks);
+              }}
+            />
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={() => {
+              const copiedTasks = tasks.filter(
+                (task) => task.id !== currentTask.id
+              );
+              setTasks(copiedTasks);
+              setCurrentEditableTask(null);
+            }}
+          >
+            Delete Task
+          </Button>
+        </div>
+      </ScrollArea>
+    );
   };
-
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="w-full min-h-screen p-4 pt-16 rounded-lg border"
+      className="w-full max-h-screen min-h-screen p-4 pt-16 rounded-lg border"
     >
       <ResizablePanel defaultSize={60} minSize={40}>
         <div className="flex w-full h-full flex-col items-center justify-between p-4">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="list">
-              {(provided) => (
-                <ul
-                  className="w-full flex flex-col space-y-4 mb-8"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  {tasks.map((item, index) => {
-                    return (
-                      <Draggable key={item} draggableId={item} index={index}>
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <Card>
-                              <div className="w-full flex items-center p-4">
-                                <DragHandleDots2Icon className="w-4 h-4" />
-                                <div className="flex-grow">
-                                  <CardHeader>
-                                    <CardTitle>
-                                      <div className="flex items-center space-x-2">
-                                        <Checkbox id={item} />
-                                        <label
-                                          htmlFor={item}
-                                          className="text-xl font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >
-                                          Task Name
-                                        </label>
-                                      </div>
-                                    </CardTitle>
-                                    <CardDescription>
-                                      Workspace Name and Due date
-                                    </CardDescription>
-                                    <Separator className="h-[2px]" />
-                                  </CardHeader>
+          <DragNDropList
+            tasks={tasks}
+            setTasks={setTasks}
+            setCurrentEditableTask={setCurrentEditableTask}
+          />
+          <form
+            className="w-full min-w-xl flex space-x-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const date = new Date();
 
-                                  <CardContent>
-                                    <ul className="ml-4 space-y-4">
-                                      {items.map((subItem) => {
-                                        return (
-                                          <li className="flex items-center space-x-2">
-                                            <Checkbox id={subItem} />
-                                            <label
-                                              htmlFor={subItem}
-                                              className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                            >
-                                              Task Name
-                                            </label>
-                                          </li>
-                                        );
-                                      })}
-                                    </ul>
-                                  </CardContent>
+              const datestamp = date.toLocaleString(undefined, {
+                dateStyle: "long",
+                timeStyle: "short",
+              });
 
-                                  <CardFooter>
-                                    <Progress value={50} className="w-full" />
-                                  </CardFooter>
-                                </div>
-                              </div>
-                            </Card>
-                          </li>
-                        )}
-                      </Draggable>
-                    );
-                  })}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <div className="w-3/4 min-w-xl flex space-x-2">
-            <Input type="text" placeholder="Create new task..." />
-            <Button size="icon">
+              const newTask = {
+                id: crypto.randomUUID(),
+                name: inputValue,
+                workspace: "Workspace",
+                dueDate: datestamp,
+                done: false,
+                subTasks: [],
+                steps: 1,
+              };
+
+              setTasks([...tasks, newTask]);
+              setInputValue("");
+            }}
+          >
+            <Input
+              type="text"
+              placeholder="Create new task..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <Button size="icon" type="submit">
               <Pencil2Icon className="w-4 h-4" />
             </Button>
-          </div>
+          </form>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
@@ -144,8 +234,10 @@ export default function Editor() {
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={72}>
-            <div className="flex h-full items-center justify-center p-4"></div>
+          <ResizablePanel defaultSize={72} minSize={40}>
+            <div className="flex w-full h-full items-center justify-center p-4">
+              <TaskEditor />
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>
