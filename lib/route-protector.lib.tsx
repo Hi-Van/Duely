@@ -15,6 +15,7 @@ export default function RouteProtector({
     authorization: `Bearer=${"test" || user?.token}`,
     "user-id": "test" || user?.userId,
   });
+  
   useEffect(() => {
     if (
       (getValidationQuery.data && !getValidationQuery.data.isAuthorized) ||

@@ -1,5 +1,6 @@
 "use client";
 
+import Editor from "@/components/ui/editor";
 import RouteProtector from "@/lib/route-protector.lib";
 
 export default function Page({
@@ -8,12 +9,8 @@ export default function Page({
   params: { userId: string; workspace: string };
 }) {
   return (
-    <RouteProtector>
-      <div>
-        <h1>Page</h1>
-        <p>userId: {params.userId}</p>
-        <p>workspace: {params.workspace}</p>
-      </div>
-    </RouteProtector>
+    <div>
+      <Editor />
+    </div>
   );
 }

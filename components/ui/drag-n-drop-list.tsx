@@ -8,11 +8,17 @@ import {
   CardTitle,
 } from "./card";
 import { ScrollArea } from "./scroll-area";
-import { DragHandleDots2Icon, Pencil2Icon } from "@radix-ui/react-icons";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { Progress } from "./progress";
 import { Checkbox } from "./checkbox";
 import { Separator } from "./separator";
 import { Button } from "./button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface Task {
   id: string;
@@ -70,17 +76,29 @@ export default function DragNDropList({
                       >
                         <Card className="rounded-md">
                           <div className="w-full flex items-center p-4">
-                            <Button
-                              variant={null}
-                              className="m-0 p-0 w-fit h-fit"
-                              onClick={() => {
-                                setCurrentEditableTask(task.id);
-                              }}
-                            >
-                              <DragHandleDots2Icon className="w-4 h-4" />
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant={null}
+                                    className="m-0 p-0 w-fit h-fit"
+                                    onClick={() => {
+                                      setCurrentEditableTask(task.id);
+                                    }}
+                                    asChild
+                                  >
+                                    <DragHandleDots2Icon className="w-4 h-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Hold and drag to reorder.</p>
+                                  <p>Click to edit.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
                             <div className="flex-grow">
-                              <CardHeader>
+                              <CardHeader className="p-2">
                                 <CardTitle>
                                   <div className="flex items-center space-x-2">
                                     <Checkbox
@@ -109,36 +127,32 @@ export default function DragNDropList({
 
                               {task.subTasks.length > 0 && (
                                 <CardContent>
-                                  <ul className="ml-4 space-y-2">
+                                  <ul className="ml-4 mt-2 divide-y divide-dashed">
                                     {task.subTasks.map((subTask, jdx) => {
                                       return (
-                                        <li key={subTask.id}>
-                                          <Card className="rounded-sm shadow-sm">
-                                            <CardContent className="flex items-center space-x-2 p-4">
-                                              <Checkbox
-                                                id={subTask.id}
-                                                checked={subTask.done}
-                                                onCheckedChange={() => {
-                                                  const copiedTasks = [
-                                                    ...tasks,
-                                                  ];
-                                                  copiedTasks[idx].subTasks[
-                                                    jdx
-                                                  ].done =
-                                                    !copiedTasks[idx].subTasks[
-                                                      jdx
-                                                    ].done;
-                                                  setTasks(copiedTasks);
-                                                }}
-                                              />
-                                              <label
-                                                htmlFor={subTask.id}
-                                                className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                              >
-                                                {subTask.name}
-                                              </label>
-                                            </CardContent>
-                                          </Card>
+                                        <li
+                                          key={subTask.id}
+                                          className="flex items-center space-x-2 py-3"
+                                        >
+                                          <Checkbox
+                                            id={subTask.id}
+                                            checked={subTask.done}
+                                            onCheckedChange={() => {
+                                              const copiedTasks = [...tasks];
+                                              copiedTasks[idx].subTasks[
+                                                jdx
+                                              ].done =
+                                                !copiedTasks[idx].subTasks[jdx]
+                                                  .done;
+                                              setTasks(copiedTasks);
+                                            }}
+                                          />
+                                          <label
+                                            htmlFor={subTask.id}
+                                            className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                          >
+                                            {subTask.name}
+                                          </label>
                                         </li>
                                       );
                                     })}
@@ -146,7 +160,7 @@ export default function DragNDropList({
                                 </CardContent>
                               )}
 
-                              <CardFooter>
+                              <CardFooter className="p-2">
                                 <Progress
                                   value={
                                     ([task, ...task.subTasks].filter(
