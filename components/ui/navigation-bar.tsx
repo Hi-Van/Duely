@@ -27,6 +27,9 @@ export default function NavigationBar() {
   const setAlerts = useAppState((state) => state.setAlerts);
   const user = useAppState((state) => state.user);
 
+  const glassEffect =
+    "bg-gray-500 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10";
+
   const themeIcon = () => {
     if (!theme || systemTheme === "dark" || theme === "dark") {
       return <MoonIcon className="h-4 w-4" />;
@@ -81,8 +84,8 @@ export default function NavigationBar() {
   };
 
   return (
-    <div className="w-full z-1 fixed px-4 py-2 ">
-      <div className="w-full flex justify-between items-center px-4 pb-2">
+    <div className={"w-full flex z-20 fixed top-4 justify-center items-center"}>
+      <div className="w-[1000px] bg-background flex justify-between items-center p-2 border shadow-sm rounded-md">
         <Link href="/" className="font-extrabold text-xl">
           Duely
         </Link>
@@ -118,7 +121,6 @@ export default function NavigationBar() {
           </DropdownMenu>
         </div>
       </div>
-      <Separator />
     </div>
   );
 }

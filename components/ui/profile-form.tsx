@@ -26,13 +26,12 @@ import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { useAppState } from "@/lib/state.lib";
 
-export function ProfileForm({
-  login = false,
-  formSchema,
-}: {
+interface ProfileFormProps {
   login?: boolean;
   formSchema: z.ZodObject<any>;
-}) {
+}
+
+export function ProfileForm({ login = false, formSchema }: ProfileFormProps) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,6 +65,29 @@ export function ProfileForm({
     }
   }
 
+  const createFormField = (
+    control: any,
+    name: string,
+    placeholder: string,
+    label: string,
+    description?: string
+  ) => (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="my-4 w-full max-w-md">
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Input placeholder={placeholder} {...field} />
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+
   const signUpForm = (
     <Tabs defaultValue="email" className="w-full flex flex-col items-center">
       <TabsList className="grid w-full max-w-md mb-2 grid-cols-2">
@@ -73,53 +95,28 @@ export function ProfileForm({
         <TabsTrigger value="credentials">Credentials</TabsTrigger>
       </TabsList>
       <TabsContent value="email" className="w-full min-h-72 max-w-md">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="my-4">
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="account@duely.com" {...field} />
-              </FormControl>
-              <FormDescription>
-                For Recovery and Account Management
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {createFormField(
+          form.control,
+          "email",
+          "account@duely.com",
+          "Email",
+          "For Recovery and Account Management"
+        )}
       </TabsContent>
       <TabsContent value="credentials" className="w-full min-h-72 max-w-md">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem className="mt-4">
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Duelyname" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="my-8">
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter password..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {createFormField(
+          form.control,
+          "username",
+          "Duelyname",
+          "Username",
+          "This is your public display name."
+        )}
+        {createFormField(
+          form.control,
+          "password",
+          "Enter password...",
+          "Password"
+        )}
 
         <Button type="submit" className="w-full">
           Sign Up
@@ -130,34 +127,13 @@ export function ProfileForm({
 
   const loginForm = (
     <div className="w-full flex flex-col items-center">
-      <FormField
-        control={form.control}
-        name="username"
-        render={({ field }) => (
-          <FormItem className="mt-4 w-full max-w-md">
-            <FormLabel>Username</FormLabel>
-            <FormControl>
-              <Input placeholder="Duelyname" {...field} />
-            </FormControl>
-
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="password"
-        render={({ field }) => (
-          <FormItem className="mt-4 mb-8 w-full max-w-md">
-            <FormLabel>Password</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter password..." {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
+      {createFormField(form.control, "username", "Duelyname", "Username")}
+      {createFormField(
+        form.control,
+        "password",
+        "Enter password...",
+        "Password"
+      )}
       <Button type="submit" className="w-full max-w-md">
         Login
       </Button>
