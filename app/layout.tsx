@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/lib/theme-provider.lib";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -17,13 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <main className="flex w-full flex-col items-center justify-between">
-            <div className="w-full min-h-screen">{children}</div>
-          </main>
-        </ThemeProvider>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
