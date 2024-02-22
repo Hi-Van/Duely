@@ -1,19 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { IoPerson } from "react-icons/io5";
 import { BsBookmarks } from "react-icons/bs";
+import unsplash from "@/assets/takashi-miyazaki-64ajtpEzlYc-unsplash.jpg";
+import Image from "next/image";
+import { DarkModeToggle } from "@/components/ui/darkmode-toggle";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between">
-      <div className="w-full h-full min-h-screen grid grid-rows-16 grid-cols-16">
-        <div className="grid grid-rows-subgrid col-span-3 row-span-full bg-blue-500">
-          <div className="row-span-3 bg-purple-500">
-            accounts and settings area
-          </div>
+      <div className="w-full h-full min-h-screen flex flex-row">
+        <div className="w-1/5 border">
+          <div className="border-b">accounts and settings area</div>
         </div>
-        <div className="col-span-9 row-span-full bg-green-500">
-          <div className="flex w-full h-10 items-center bg-red-500 px-2 justify-between">
-            <div className="flex gap-2 items-center">
+        <div className="w-3/5">
+          <div className="sticky top-0 left-0 z-10 flex w-full h-11 px-4 items-center justify-between bg-background/40 backdrop-blur-sm drop-shadow-sm">
+            <div className="flex gap-4 items-center">
               <h2 className="text-lg font-semibold">Workspace name</h2>
               <BsBookmarks className="w-4 h-4" />
             </div>
@@ -22,11 +23,21 @@ export default function Home() {
                 <IoPerson className="h-3 w-3 mr-1.5" /> Invite
               </Button>
               <Button size={"sm"}>Share</Button>
+              <DarkModeToggle />
             </div>
           </div>
+
+          <div className="relative -mt-11">
+            <Image
+              alt="unsplash image"
+              src={unsplash}
+              className="aspect-[3/1] object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent from-35% to-background"></div>
+          </div>
         </div>
-        <div className="grid grid-rows-subgrid col-span-4 row-span-full bg-blue-500">
-          <div className="row-span-4 bg-purple-500">calendar area</div>
+        <div className="w-1/5 border">
+          <div className="border-b">calendar area</div>
         </div>
       </div>
     </main>
